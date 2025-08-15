@@ -1,0 +1,36 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+*.log
+
+# Virtual environment
+.venv/
+env/
+venv/
+
+# Jupyter notebooks
+.ipynb_checkpoints/
+
+# Streamlit runtime files (but keep config.toml)
+.streamlit/*
+!.streamlit/config.toml
+
+# Local Chroma DB (will be rebuilt on ingest)
+db/
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Hugging Face cache
+.cache/
+huggingface/
+
+# VSCode / IDE
+.vscode/
+.idea/
+

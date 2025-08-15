@@ -1,0 +1,19 @@
+# Simple demo rules. Tweak thresholds and lists as needed.
+diabetes:
+  avoid_ingredients: ["white sugar", "soda"]
+  max_per_meal:
+    carbs_g: 60
+  prefer_tags: ["low-sugar", "high-fiber"]
+
+hypertension:
+  max_per_meal:
+    sodium_mg: 600
+  prefer_tags: ["low-sodium", "potassium-rich"]
+
+celiac:
+  avoid_ingredients: ["wheat", "barley", "rye", "malt", "semolina", "spelt"]
+  required_tags: ["gluten-free"]
+
+lactose_intolerance:
+  avoid_ingredients: ["milk", "cream", "cheese", "butter", "yogurt"]
+  prefer_tags: ["dairy-free"]

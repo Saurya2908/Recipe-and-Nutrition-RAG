@@ -1,0 +1,8 @@
+# Simple subs used in the UI. Expand as needed.
+milk: ["almond milk", "soy milk", "oat milk"]
+butter: ["olive oil", "coconut oil", "ghee"]
+egg: ["flax egg", "chia egg", "silken tofu"]
+wheat flour: ["oat flour", "rice flour", "almond flour"]
+sugar: ["stevia", "erythritol", "date paste"]
+soy sauce: ["tamari", "coconut aminos"]
+peanut: ["almond", "sunflower seed"]
