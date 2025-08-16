@@ -34,3 +34,4 @@ huggingface/
 .vscode/
 .idea/
 
+.env
