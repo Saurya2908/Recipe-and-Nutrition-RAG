@@ -12,6 +12,7 @@ load_dotenv()
 st.set_page_config(page_title="Recipe & Nutrition RAG", page_icon="🍽️", layout="wide")
 
 st.title("🍽️ Recipe & Nutrition RAG")
+
 # Check if OpenAI API key is set
 if not os.getenv("OPENAI_API_KEY"):
     st.warning("⚠️ No OpenAI API key detected — responses will use simple templates instead of AI.")
@@ -20,7 +21,24 @@ else:
 
 st.caption("Personalized meal suggestions with dietary restrictions, allergies, and health conditions.")
 
-# Sidebar controls
+
+# ------------------ Cached RAGPipeline ------------------ #
+@st.cache_resource
+def get_pipeline():
+    return RAGPipeline()
+
+rag = get_pipeline()
+hp = load_health_profiles()
+
+# ------------------ Auto build index if missing ------------------ #
+DB_PATH = os.path.join(os.path.dirname(__file__), "db")
+if not os.path.exists(DB_PATH) or not os.listdir(DB_PATH):
+    with st.spinner("🔄 Building recipe index..."):
+        count = rag.build_index()
+        st.success(f"✅ Index built with {count} recipes.")
+
+
+# ------------------ Sidebar controls ------------------ #
 with st.sidebar:
     st.header("Your profile")
     restrictions = st.multiselect(
@@ -43,13 +61,11 @@ with st.sidebar:
     target_fat = st.number_input("Fat (g)", min_value=0, value=0, step=5)
     st.markdown("---")
     if st.button("Build index (run once)"):
-        rag = RAGPipeline()
         count = rag.build_index()
         st.success(f"Indexed {count} recipes.")
 
-rag = RAGPipeline()
-hp = load_health_profiles()
 
+# ------------------ Query UI ------------------ #
 st.subheader("Tell us what you want to eat")
 query = st.text_input("Describe your meal idea or ingredients (e.g., 'oats and apple breakfast for diabetes')")
 top_k = st.slider("How many suggestions?", 1, 10, 5)
@@ -57,7 +73,6 @@ top_k = st.slider("How many suggestions?", 1, 10, 5)
 if st.button("Find meals"):
     with st.spinner("Retrieving..."):
         raw_results = rag.search(query, top_k=top_k)
-        # Apply filters & scoring, passing top_k along
         results = apply_health_filters(
             raw_results,
             restrictions, allergies, conditions, hp,
@@ -72,7 +87,7 @@ if st.button("Find meals"):
         st.success(f"Top {len(results)} suggestions")
         for r in results:
             with st.container(border=True):
-                left, right = st.columns([2,1])
+                left, right = st.columns([2, 1])
                 with left:
                     st.markdown(f"**{r['title']}** — {r.get('cuisine','')}")
                     # Handle tags safely
@@ -113,6 +128,8 @@ if st.button("Find meals"):
                         st.session_state['day'] = day
                         st.success("Added to your day tracker")
 
+
+# ------------------ Day Tracker ------------------ #
 st.subheader("Your day tracker")
 day = st.session_state.get('day', [])
 if day:
@@ -122,6 +139,10 @@ if day:
     } for r in day])
     st.dataframe(df, use_container_width=True)
     totals = df.sum(numeric_only=True).to_dict()
-    st.info(f"Totals — Calories: {int(totals.get('calories', 0))}, Protein: {int(totals.get('protein_g', 0))}g, Carbs: {int(totals.get('carbs_g', 0))}g, Fat: {int(totals.get('fat_g', 0))}g, Sodium: {int(totals.get('sodium_mg', 0))}mg")
+    st.info(f"Totals — Calories: {int(totals.get('calories', 0))}, "
+            f"Protein: {int(totals.get('protein_g', 0))}g, "
+            f"Carbs: {int(totals.get('carbs_g', 0))}g, "
+            f"Fat: {int(totals.get('fat_g', 0))}g, "
+            f"Sodium: {int(totals.get('sodium_mg', 0))}mg")
 
 st.caption("Tip: Click 'Build index' after changing the dataset in data/")
