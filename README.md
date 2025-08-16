@@ -1,4 +1,16 @@
-Recipe & Nutrition RAG with Dietary Restrictions
+---
+title: Recipe & Nutrition RAG
+emoji: 🍽️
+colorFrom: pink
+colorTo: purple
+sdk: streamlit
+app_file: app.py
+pinned: false
+---
+
+
+
+# Recipe & Nutrition RAG with Dietary Restrictions
 
 What this is
 - A beginner-friendly Retrieval-Augmented Generation (RAG) demo that suggests recipes based on your dietary restrictions, allergies, health conditions, and nutrition goals.
@@ -12,7 +24,7 @@ Key features
 - Ingredient substitution suggestions loaded from data/substitutions.yaml.
 - Nutrition goals (calories, protein, carbs, fat) and simple day-level tracking.
 
-Local setup
+# Local setup
 1) Install Python 3.11 and git.
 2) Optional but recommended: create and activate a virtual environment.
    - macOS/Linux: python3 -m venv .venv && source .venv/bin/activate
@@ -27,31 +39,26 @@ Local setup
 6) Launch the app:
    streamlit run app.py
 
-Using the app
+# Using the app
 - Use the sidebar to pick dietary restrictions, allergies, and health conditions.
 - Set target calories & macros if desired.
 - Type what you want (e.g., “I have oats and apples, need a diabates-friendly breakfast”).
 - Click “Find meals” to see top suggestions with nutrition and substitutions.
 - Click “Add to day” to include a recipe in your daily tracker.
 
-Deploy to Hugging Face Spaces (recommended for an easy free link)
+# Deploy to Hugging Face Spaces (recommended for an easy free link)
 1) Create a new Space at https://huggingface.co/spaces and select “Streamlit” as the SDK.
 2) Push this repository (files as-is) to the Space.
 3) In your Space “Settings” -> “Variables”, add OPENAI_API_KEY if you want LLM generation.
 4) Spaces will build automatically from requirements.txt. The public link will look like:
    https://huggingface.co/spaces/<your-username>/<your-space-name>
 
-Deploy to Streamlit Community Cloud
-1) Push this folder to a public GitHub repo.
-2) Go to https://share.streamlit.io , connect your GitHub, pick the repo & the app.py entry point.
-3) Add OPENAI_API_KEY in app secrets if desired.
-4) You’ll get a link like https://<your-app-name>-<your-user>.streamlit.app
 
-Lightweight evaluation
+# Lightweight evaluation
 - A basic retrieval evaluation is included (eval.py). It measures whether relevant recipes are in the top-k results for a few test questions.
 - Run: python eval.py
 
-Project structure
+# Project structure
 - app.py                      # Streamlit UI
 - ingest.py                   # Loads data/recipes_sample.jsonl into Chroma
 - rag.py                      # RAG core: embed, retrieve, filter, generate
@@ -62,6 +69,6 @@ Project structure
 - requirements.txt
 - README.md
 
-Notes
+# Notes
 - The sample dataset is intentionally small; replace it with your own for better results.
 - If you do not use OpenAI, the app will still run and produce template-based, non-LLM responses.
