@@ -4,8 +4,10 @@ import ast
 import streamlit as st
 import pandas as pd
 from rag import RAGPipeline
+from dotenv import load_dotenv
 from utils.nutrition import load_health_profiles, apply_health_filters, suggest_substitutions
 
+load_dotenv()
 
 st.set_page_config(page_title="Recipe & Nutrition RAG", page_icon="🍽️", layout="wide")
 

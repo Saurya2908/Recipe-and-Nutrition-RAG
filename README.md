@@ -13,7 +13,7 @@ Key features
 - Nutrition goals (calories, protein, carbs, fat) and simple day-level tracking.
 
 Local setup
-1) Install Python 3.10+ and git.
+1) Install Python 3.11 and git.
 2) Optional but recommended: create and activate a virtual environment.
    - macOS/Linux: python3 -m venv .venv && source .venv/bin/activate
    - Windows (PowerShell): py -m venv .venv; .\.venv\Scripts\Activate.ps1

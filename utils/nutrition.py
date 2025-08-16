@@ -94,9 +94,11 @@ def score_targets(recipe, targets):
     return -math.sqrt(diff2)  # higher is better
 
 def apply_health_filters(hits, restrictions, allergies, conditions, hp, targets=None, top_k=10):
-    # Filter out violating recipes
+    """Filter recipes by restrictions/allergies/health, then rank by nutrition targets."""
     filtered = []
     for r in hits:
+        if not isinstance(r, dict):  # skip malformed
+            continue
         if violates_restrictions(r, [x.lower() for x in restrictions]):
             continue
         if violates_allergies(r, [x.lower() for x in allergies]):
@@ -104,6 +106,25 @@ def apply_health_filters(hits, restrictions, allergies, conditions, hp, targets=
         if violates_health(r, [x.lower() for x in conditions], hp):
             continue
         filtered.append(r)
+
+    # --- ranking by targets ---
+    if targets:
+        def score_targets(recipe, targets):
+            diff2 = 0
+            for k, t in targets.items():
+                val = recipe.get(k, 0)  # ✅ use top-level dict
+                try:
+                    val = float(val)
+                except (ValueError, TypeError):
+                    val = 0
+                diff2 += (val - t) ** 2
+            return diff2
+
+        filtered.sort(key=lambda r: score_targets(r, targets))
+
+    # return only top_k
+    return filtered[:top_k]
+
 
     # Rank by closeness to targets (if any), then by basic tag boosts
     def rank_key(r):
