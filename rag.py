@@ -8,7 +8,8 @@ DATA_PATH = os.path.join(os.path.dirname(__file__), "data", "recipes_sample.json
 
 class RAGPipeline:
     def __init__(self):
-        self.embedder = SentenceTransformer("./models/all-MiniLM-L6-v2", device="cpu")
+        #self.embedder = SentenceTransformer("./models/all-MiniLM-L6-v2", device="cpu")--for local run
+        self.embedder = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2", device="cpu")#for production
 
         # ✅ Detect Streamlit Cloud & avoid SQLite
         if os.environ.get("STREAMLIT_RUNTIME"):
