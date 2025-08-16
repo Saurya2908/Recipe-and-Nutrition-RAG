@@ -8,9 +8,24 @@ DATA_PATH = os.path.join(os.path.dirname(__file__), "data", "recipes_sample.json
 
 class RAGPipeline:
     def __init__(self):
-        self.embedder = SentenceTransformer("./models/all-MiniLM-L6-v2",device="cpu")
-        self.client = chromadb.PersistentClient(path=DB_PATH)
-        self.col = self.client.get_or_create_collection(name="recipes", metadata={"hnsw:space":"cosine"})
+        self.embedder = SentenceTransformer("./models/all-MiniLM-L6-v2", device="cpu")
+
+        # ✅ Detect Streamlit Cloud & avoid SQLite
+        if os.environ.get("STREAMLIT_RUNTIME"):
+            print("⚡ Using in-memory Chroma (Streamlit Cloud detected)")
+            self.client = chromadb.Client(
+                chromadb.config.Settings(
+                    chroma_db_impl="duckdb+parquet",
+                    persist_directory=None
+                )
+            )
+        else:
+            print("💾 Using persistent Chroma (local)")
+            self.client = chromadb.PersistentClient(path=DB_PATH)
+
+        self.col = self.client.get_or_create_collection(
+            name="recipes", metadata={"hnsw:space": "cosine"}
+        )
 
     def build_index(self):
         # clear existing for idempotency in demo
@@ -18,8 +33,10 @@ class RAGPipeline:
             self.client.delete_collection("recipes")
         except Exception:
             pass
-        self.col = self.client.get_or_create_collection(name="recipes", metadata={"hnsw:space":"cosine"})
-        
+        self.col = self.client.get_or_create_collection(
+            name="recipes", metadata={"hnsw:space": "cosine"}
+        )
+
         docs, ids, metas = [], [], []
         with open(DATA_PATH) as f:
             for line in f:
@@ -27,7 +44,7 @@ class RAGPipeline:
                 doc = self._to_doc(r)
                 docs.append(doc)
                 ids.append(r["id"])
-                metas.append(self._sanitize_meta(r))   # ✅ sanitize metadata
+                metas.append(self._sanitize_meta(r))  # ✅ sanitize metadata
 
         embeds = self.embedder.encode(docs, normalize_embeddings=True).tolist()
         self.col.add(embeddings=embeds, documents=docs, metadatas=metas, ids=ids)
@@ -60,7 +77,7 @@ Instructions: {r.get('instructions','')}
         if not query.strip():
             query = "simple healthy meal"
         q_embed = self.embedder.encode([query], normalize_embeddings=True).tolist()
-        res = self.col.query(query_embeddings=q_embed, n_results=top_k*3)  # retrieve extra; filter later
+        res = self.col.query(query_embeddings=q_embed, n_results=top_k * 3)  # retrieve extra; filter later
 
         hits = []
         for doc, meta, id_ in zip(res["documents"][0], res["metadatas"][0], res["ids"][0]):
